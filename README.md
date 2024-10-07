@@ -60,7 +60,21 @@ Unzip the downloaded `dob.zip` file:
 unzip dob.zip
 ```
 
-### 3. **Run the Binary**
+If you prefer to use the tar file, download and extract the tar archive:
+
+```bash
+wget https://github.com/Deeeye/DOB-Installation-Package/raw/main/dob.tar.gz -O dob.tar.gz
+tar -xzvf dob.tar.gz
+```
+
+### 3. **Move the Executable to a Directory in Your $PATH**
+(Optional) You can move the `dob` executable to a directory in your system's `$PATH` so that it can be accessed from anywhere:
+
+```bash
+sudo mv dob /usr/local/bin/
+```
+
+### 4. **Run the Binary**
 After extracting the binary, navigate to the extracted folder and run the tool:
 
 ```bash
@@ -72,26 +86,30 @@ This will show a list of available commands and options for the DevOps-Bot tool.
 ---
 
 ## **Usage**
-The `dob` tool uses a set of commands and YAML configuration files to manage and automate infrastructure tasks.
+Once installed, you can use the `dob` command to see the available options and commands:
 
-### **Example Commands**
+```bash
+dob --help
+```
 
-- **List available commands**:
+To view the version of DevOps-Bot:
+
+```bash
+dob --version
+```
+
+### **Common Commands**
+
+- **View Help**:
 
   ```bash
-  ./dob --help
+  dob --help
   ```
 
-- **Create an EC2 instance**:
+- **Execute a Sample Command**:
 
   ```bash
-  ./dob create-ec2 --config ec2-config.yaml
-  ```
-
-- **Destroy an EC2 instance**:
-
-  ```bash
-  ./dob destroy-ec2 --config ec2-config.yaml
+  dob sample-command
   ```
 
 ---
@@ -111,7 +129,17 @@ DevOps-Bot currently supports AWS, GCP, and Azure.
 ---
 
 ## **Contributing**
-If you would like to contribute to this project, please fork the repository and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
+Currently, I am running a trial version of this tool. Contributions are not yet open to the public, but I welcome your reviews and feedback. 
+
+If you are interested in creating YouTube tutorials or DevOps content using this tool, feel free to reach out to me. You can connect with me on [LinkedIn](https://www.linkedin.com/) for more information and collaboration opportunities.
+
+---
+![dob-logo](IMG_2055.png)
+---
+
+## **License**
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
 
 ---
 
