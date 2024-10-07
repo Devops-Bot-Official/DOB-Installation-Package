@@ -141,8 +141,5 @@ If you are interested in creating YouTube tutorials or DevOps content using this
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 
----
 
-## **License**
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
