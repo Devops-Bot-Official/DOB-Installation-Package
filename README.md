@@ -131,7 +131,7 @@ DevOps-Bot currently supports AWS, GCP, and Azure.
 ## **Contributing**
 Currently, I am running a trial version of this tool. Contributions are not yet open to the public, but I welcome your reviews and feedback. 
 
-If you are interested in creating YouTube tutorials or DevOps content using this tool, feel free to reach out to me. You can connect with me on [LinkedIn](https://www.linkedin.com/) for more information and collaboration opportunities.
+If you are interested in creating YouTube tutorials or DevOps content using this tool, feel free to reach out to me. You can connect with me on [LinkedIn](linkedin.com/in/mohamed-sesay-323902302) for more information and collaboration opportunities.
 
 ---
 ![dob-logo](IMG_2055.png)
