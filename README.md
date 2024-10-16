@@ -118,7 +118,7 @@ dob --version
 Configuration details will be added soon. Stay tuned!
 
 ---
-## Overview
+## Loop and Conditions
 
 This document explains how to use loops and conditions within the `DevOps-Bot` configuration YAML file. Loops allow you to create multiple instances or resources dynamically, while conditions allow you to control whether certain resources are provisioned based on variables or other logic.
 
@@ -460,9 +460,7 @@ After saving a host entry using `add_host_entry` and running tasks, the hosts fi
 
 - The `add_host_entry` and `get_host_entry` functions allow you to organize, retrieve, and work with categorized host entries in your DevOps environment.
 - The `tasks` feature in your screenplay allows for flexible execution of commands and file transfers, either globally or on a category-specific level.
-### Conclusion
 
-With these loop and condition features, `DevOps-Bot` provides powerful and flexible resource provisioning capabilities. You can easily create multiple resources, manage environments, and handle complex configurations dynamically. The retry mechanism ensures resilience in case of failures, while conditions allow you to control the flow based on variables.
 
 ---
 
