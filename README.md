@@ -325,24 +325,10 @@ tasks:
 ---
 ## Host Management Functions
 
-### `add_host_entry`
-
-The `add_host_entry` function is used to add an entry into the hosts file. It supports categorization, which allows you to organize entries under specific sections, such as `dev`, `prod`, or `ops`. 
-
-#### Function Definition:
-```python
-def add_host_entry(user_id, private_ip, category=None):
-    """Adds a host entry with an optional category to the hosts file."""
-```
-
 #### Parameters:
 - **`user_id`**: The unique identifier for the host (e.g., instance name).
 - **`private_ip`**: The private IP address of the host.
 - **`category`**: (Optional) A category or section under which the entry will be saved, such as `dev`, `prod`, or `ops`. If not provided, the entry is saved in the default section.
-
-#### Example Usage:
-```bash
-add_host_entry('jenkins-server', '192.168.0.1', 'dev')
 ```
 
 #### Hosts File Example:
@@ -363,14 +349,6 @@ If an entry is added with the category `dev`, the hosts file will look like this
 
 ---
 
-### `get_host_entry`
-
-The `get_host_entry` function retrieves a specific host entry from the hosts file based on the `identifier` and optionally the `category`. This ensures that even if two hosts have similar names, they can be differentiated by their categories.
-
-#### Function Definition:
-```python
-def get_host_entry(identifier, category=None):
-    """Fetches a host entry from the hosts file, allowing search by category."""
 ```
 
 #### Parameters:
@@ -463,6 +441,146 @@ After saving a host entry using `add_host_entry` and running tasks, the hosts fi
 
 
 ---
+## Overview
+The `tasks` function in DevOps-Bot allows users to execute a variety of actions on remote servers or cloud instances. Tasks can range from running shell commands to copying files, downloading resources, managing system services, and more. This functionality is highly flexible and enables users to automate their operations efficiently.
+
+The tasks are defined in a YAML configuration file and support both specifying a particular server or executing actions across multiple servers that belong to a specific category.
+
+### Structure of Task Configuration
+The task configuration resides under the `tasks` section in the YAML file. Each task can have several fields, and they should be defined with the following parameters:
+
+### Parameters
+- **name** (Required): The name of the task. This helps in identifying tasks in logs and tables.
+- **action** (Required): The type of action to perform. Available actions include:
+  - **RUN**: Execute a command on the remote server.
+  - **COPY**: Copy files from one location to another.
+  - **DOWNLOAD**: Download a file from a URL to a specified location.
+  - **CREATE**: Create a directory on the remote server.
+  - **MOVE**: Move files from one location to another.
+  - **DELETE**: Delete files or directories.
+  - **LINK**: Open a specified URL.
+  - **TRANSFER**: Transfer files (upload or download).
+  - **ATTACH**: Attach an AWS volume to an instance.
+  - **DETACH**: Detach an AWS volume from an instance.
+  - **INSTALL**: Install a package.
+  - **START_SERVICE**: Start a system service.
+  - **STOP_SERVICE**: Stop a system service.
+  - **CHECK_SERVICE**: Check the status of a system service.
+- **identifiers** (Optional): A specific server identifier. Use `ALL` to execute the task across all servers or provide the server name.
+- **command** (Optional): The shell command to execute. This is applicable when `action` is set to **RUN**.
+- **package** (Optional): The name of the package to install, applicable when `action` is **INSTALL**.
+- **service** (Optional): The name of the service to start, stop, or check, applicable when using **START_SERVICE**, **STOP_SERVICE**, or **CHECK_SERVICE**.
+- **category** (Optional): The category of servers (e.g., `dev`, `prod`) on which the task should be executed.
+
+### Example YAML Configuration
+Below is an example of a YAML configuration that uses the `tasks` functionality:
+
+```yaml
+version: "1.0"
+
+remote-server:
+  - identifiers: "opp-server"
+    username: "root"
+    category: "dev"
+
+tasks:
+  - name: Determine OS type
+    action: RUN
+    command: |
+      if [ -f /etc/debian_version ]; then
+        echo "Ubuntu" > /etc/os_type
+      elif [ -f /etc/redhat-release ]; then
+        echo "CentOS" > /etc/os_type
+      fi
+    identifiers: "opp-server"
+    category: "dev"
+
+  - name: Create Directory
+    action: CREATE
+    path: /tmp/new_directory
+    identifiers: "ALL"
+    category: "dev"
+
+  - name: Install Curl
+    action: INSTALL
+    package: curl
+    identifiers: "opp-server"
+    category: "dev"
+
+  - name: Start Apache Service
+    action: START_SERVICE
+    service: apache2
+    identifiers: "opp-server"
+    category: "dev"
+```
+
+### Execution Overview
+- **Task Name**: This is displayed in logs, which makes it easy for users to track what each task is doing.
+- **Actions**: This field specifies what kind of operation is to be performed.
+- **Identifiers and Categories**: These fields help in determining the target servers on which actions should be taken. This allows users to execute tasks either across all servers in a category or on specific servers.
+
+### Example Task Review Table
+When executing a task configuration, a table similar to the following will be displayed for review before proceeding:
+
+```
++----+---------------+---------------------------------------+
+|    | Task Name     | Determine OS type                     |
++====+===============+=======================================+
+| +  | Action        | RUN                                   |
++----+---------------+---------------------------------------+
+| +  | Identifiers   | opp-server                            |
++----+---------------+---------------------------------------+
+| +  | Category      | dev                                   |
++----+---------------+---------------------------------------+
+| +  | Command       | if [ -f /etc/debian_version ]; then   |
+|    |               | echo "Ubuntu" > /etc/os_type         |
+|    |               | elif [ -f /etc/redhat-release ]; then |
+|    |               | echo "CentOS" > /etc/os_type         |
+|    |               | fi                                    |
++----+---------------+---------------------------------------+
+```
+
+### Available Actions and Usage
+1. **RUN**: Execute a command on a server.
+   ```yaml
+   - name: Run Diagnostics
+     action: RUN
+     command: "df -h"
+     identifiers: "opp-server"
+     category: "dev"
+   ```
+
+2. **CREATE**: Create a directory.
+   ```yaml
+   - name: Create Temp Directory
+     action: CREATE
+     path: /tmp/test_dir
+     identifiers: "ALL"
+     category: "dev"
+   ```
+
+3. **START_SERVICE / STOP_SERVICE**: Start or stop a service.
+   ```yaml
+   - name: Start Apache Server
+     action: START_SERVICE
+     service: apache2
+     identifiers: "opp-server"
+     category: "prod"
+   ```
+
+4. **INSTALL**: Install a package.
+   ```yaml
+   - name: Install Git
+     action: INSTALL
+     package: git
+     identifiers: "ALL"
+     category: "dev"
+   ```
+
+### Notes on Usage
+- **Category Matching**: If `category` is specified, the action is only executed on servers within that category.
+- **Error Handling**: If an error occurs (e.g., if the identifier is not found), the system will print an error message, and the execution for that specific task will be skipped.
+- **Task Review Table**: The review table ensures that the user gets an overview of all tasks, actions, and targets before confirming the execution, which prevents mistakes.
 
 
 ## **FAQ**
