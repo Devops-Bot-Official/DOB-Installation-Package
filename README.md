@@ -442,82 +442,166 @@ After saving a host entry using `add_host_entry` and running tasks, the hosts fi
 
 ---
 ## Task
-## Features
+# Screenplay Function - Example Scripts
 
-- **Retry Mechanism with Backoff**: Automatically retry failed tasks with an exponential backoff strategy.
-- **Notification and Logging**: Notify users on task failures and log the task execution summary.
-- **Task Dependency Management**: Ensure that tasks are only executed if dependent tasks have successfully completed.
-- **Timeout Management**: Set a maximum time for task execution to avoid indefinite waits.
-- **Dynamic Variables**: Use placeholders in task commands and parameters, which are dynamically replaced at runtime.
-- **Parallel Execution**: Execute tasks concurrently on multiple servers.
-- **Output Capture**: Capture the output of each task and analyze it to determine success or failure.
-- **Rollback Mechanism**: Revert changes if a task fails and rollback is enabled.
-- **Custom User Prompts**: Prompt the user for confirmation before executing certain tasks.
-- **Improved Loop and Iteration Handling**: Iterate over lists or counters for repetitive tasks.
-- **File and Template Management**: Handle file creation, movement, copying, and deletion.
-- **Advanced Networking Tasks**: Automate network configurations and checks.
-- **Health Checks**: Ensure systems are operational by performing health checks on services.
-- **Task Grouping**: Group multiple tasks into logical units and execute them sequentially.
-- **Task Scheduling**: Schedule tasks to run at specific times.
-- **Custom Actions and Plugins**: Define custom actions or extend the tool with additional plugins.
-- **Environment Detection**: Automatically detect and adapt to the environment (e.g., CentOS, Debian).
-- **Resource Management and Quotas**: Enforce resource limits to avoid over-provisioning.
-- **Fail-Safe Mechanism**: Stop execution in the event of critical task failures.
-- **Task Import and Modularization**: Import tasks from other modules to reuse across different projects.
-- **Enhanced Summary Reporting**: Detailed reporting at the end of task execution.
+This section provides examples for each task parameter used in the screenplay function. Each example demonstrates how the different parameters can be used in a YAML configuration to automate tasks.
 
-## How It Works
+## Task Parameters
+Here are the task parameters supported in the screenplay function:
+- `name`: Task name
+- `action`: Type of action (e.g., RUN, CREATE, INSTALL, etc.)
+- `command`: Command to run on the remote server
+- `package`: Package to install
+- `service`: Service to manage
+- `identifiers`: Server identifier(s)
+- `category`: Category for group of tasks
+- `retries`: Retry attempts in case of failure
+- `timeout`: Timeout for task execution
+- `notify_on_failure`: Notification flag for failure
+- `condition`: Condition for task execution
+- `depends_on`: Dependencies on other tasks
+- `dynamic_variables`: Variables that change dynamically
+- `parallel_execution`: Execute tasks in parallel
+- `rollback_on_failure`: Rollback mechanism on failure
+- `custom_prompt`: Custom user confirmation prompt
+- `health_checks`: Perform health checks before/after task execution
+- `task_group`: Logical grouping of tasks
+- `schedule`: Schedule tasks to run at specific times
+- `custom_action`: Define custom task actions
+- `environment_detection`: Automatically detect and adapt to environment
+- `resource_quota`: Resource limits and quotas
+- `fail_safe`: Fail-safe mechanism to stop execution on failures
+- `import_tasks`: Import tasks from external files
+- `enhanced_summary`: Enhanced summary reporting at the end
 
-The screenplay function reads a YAML configuration file, which defines tasks that need to be performed on remote servers. It processes each task based on the specified parameters and performs the necessary actions, such as installing packages, managing services, creating directories, and more. 
-
-Tasks are executed in the order they are defined unless parallel execution is enabled. The function also supports conditional task execution, retries, and task dependencies.
-
-### YAML Task Example
-
-Here is an example of how tasks are defined in the YAML file:
+### Example 1: Basic Task with Retries and Timeout
 
 ```yaml
 tasks:
-  - name: Install Nginx
+  - name: Install Apache
     action: INSTALL
-    package: nginx
+    package: apache2
     retries: 3
     timeout: 300
     notify_on_failure: true
+```
+
+### Example 2: Task with Conditional Execution and Dependencies
+
+```yaml
+tasks:
+  - name: Install MySQL
+    action: INSTALL
+    package: mysql-server
+    condition: "os_type == 'debian'"
+    depends_on: Install Apache
+    retries: 2
+    notify_on_failure: true
+```
+
+### Example 3: Parallel Execution and Dynamic Variables
+
+```yaml
+tasks:
+  - name: Create Directories
+    action: CREATE
+    command: "mkdir -p /var/www/{{ item }}"
     loop:
-      count: 2
-    depends_on: PreviousTask
+      for_each: ['site1', 'site2', 'site3']
     parallel_execution: true
+    notify_on_failure: false
+```
+
+### Example 4: Custom User Prompt and Rollback on Failure
+
+```yaml
+tasks:
+  - name: Install PHP
+    action: INSTALL
+    package: php
+    custom_prompt: "Do you want to install PHP?"
     rollback_on_failure: true
-    custom_prompt: "Do you want to proceed with Nginx installation?"
-    task_group: "Web Server Setup"
+    retries: 2
+    timeout: 200
+```
+
+### Example 5: Health Checks and Task Grouping
+
+```yaml
+tasks:
+  - name: Check Nginx Service Status
+    action: CHECK_SERVICE
+    service: nginx
+    task_group: "Web Services"
     health_checks:
       - check: service_status
         service: nginx
+    retries: 1
+    notify_on_failure: true
 ```
 
-### Task Parameters
+### Example 6: Task Scheduling
 
-- **`name`**: (Required) Name of the task.
-- **`action`**: (Required) Type of action to be performed. Can be one of `RUN`, `CREATE`, `INSTALL`, `START_SERVICE`, `STOP_SERVICE`, etc.
-- **`command`**: (Optional) Command to be run on the remote server.
-- **`package`**: (Optional) Package to be installed for `INSTALL` action.
-- **`service`**: (Optional) Service to be started/stopped for `START_SERVICE` and `STOP_SERVICE` actions.
-- **`retries`**: (Optional) Number of retries in case of task failure. Defaults to 0.
-- **`timeout`**: (Optional) Maximum time (in seconds) for task execution.
-- **`notify_on_failure`**: (Optional) Notify the user on task failure. Defaults to `false`.
-- **`depends_on`**: (Optional) Task name that this task depends on. The task will be skipped if the dependency hasn't completed successfully.
-- **`loop`**: (Optional) Loop configuration. Supports `for_each` and `count` for iteration.
-- **`parallel_execution`**: (Optional) Run the task in parallel with other tasks. Defaults to `false`.
-- **`rollback_on_failure`**: (Optional) Rollback changes if the task fails. Defaults to `false`.
-- **`custom_prompt`**: (Optional) Custom user prompt to confirm the task execution.
-- **`health_checks`**: (Optional) List of health checks to perform before proceeding with the task.
-- **`task_group`**: (Optional) Group multiple tasks together for logical execution.
-- **`task_schedule`**: (Optional) Define a schedule for the task.
-- **`custom_action`**: (Optional) Define a custom action for the task.
-- **`environment_detection`**: (Optional) Detect and adapt to the environment (OS type, installed packages, etc.).
+```yaml
+tasks:
+  - name: Scheduled Backup
+    action: RUN
+    command: "/usr/local/bin/backup.sh"
+    schedule: "0 2 * * *"  # Schedule to run daily at 2:00 AM
+    notify_on_failure: true
+```
 
-### Key Functions Explained
+### Example 7: Custom Actions and Plugins
+
+```yaml
+tasks:
+  - name: Run Custom Cleanup Script
+    action: custom_cleanup
+    custom_action: "custom_cleanup.sh"
+    retries: 1
+    notify_on_failure: true
+```
+
+### Example 8: Environment Detection and Resource Quotas
+
+```yaml
+tasks:
+  - name: Install Java
+    action: INSTALL
+    package: openjdk-11-jdk
+    environment_detection: true
+    resource_quota:
+      memory: "2G"
+      cpu: "2"
+```
+
+### Example 9: Task Import and Modularization
+
+```yaml
+tasks:
+  - name: Import External Tasks
+    import_tasks: "/path/to/external/tasks.yaml"
+```
+
+### Example 10: Fail-Safe Mechanism and Enhanced Summary
+
+```yaml
+tasks:
+  - name: Install Docker
+    action: INSTALL
+    package: docker.io
+    fail_safe: true
+    enhanced_summary: true
+    retries: 2
+    notify_on_failure: true
+```
+
+## Getting Started
+
+1. Define your tasks in a YAML configuration file using the examples provided.
+2. Execute the screenplay function with your configuration.
+3. Review the summary report after execution.
+
 
 #### 1. Retry Mechanism with Backoff Strategy
 
