@@ -794,6 +794,330 @@ When executing a task configuration, a table similar to the following will be di
 - **Task Review Table**: The review table ensures that the user gets an overview of all tasks, actions, and targets before confirming the execution, which prevents mistakes.
 
 
+
+# DevOps-Bot User Guide Screebplay
+
+This document explains how to use the DevOps-Bot with different examples, including provisioning EC2 instances with and without variables, using local and remote variables, and modifying variables during execution.
+
+## 1. Screenplay Configuration File Without Variables
+
+This example demonstrates how to create an EC2 instance using a screenplay configuration without variables.
+
+### Single Instance Example
+
+```yaml
+resources:
+  region: us-east-1
+
+  ec2_instances:
+    - instance_type: t2.micro
+      ami_id: ami-01234567
+      key_name: jenkins_key
+      security_group: sg-04ac7dc75e1f54b3a
+      count: 1
+      tags:
+        - Key: Name
+          Value: slave
+      subnet_id: subnet-0123456789
+      iam_instance_profile: user
+      block_device_mappings:
+        - DeviceName: /dev/sdh
+          Ebs:
+            VolumeSize: 10
+      monitoring: true
+      instance_initiated_shutdown_behavior: terminate
+      create_remote: true
+```
+### Final Review Table
+
+```
++----+--------------------------------------+---------------------------------------------------------+
+|    | Category                             | Value                                                   |
++====+======================================+=========================================================+
+| +  | EC2 Instance                         | Instance 1                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Type                        | t2.micro                                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | AMI ID                               | ami-01234567                                            |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Key Name                             | jenkins_key                                             |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Security Group                       | sg-04ac7dc75e1f54b3a                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Tags                                 | [{'Key': 'Name', 'Value': 'slave'}]                     |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Subnet ID                            | subnet-0123456789                                       |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | IAM Role                             | user                                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Block Device Mappings                | [{'DeviceName': '/dev/sdh', 'Ebs': {'VolumeSize': 10}}] |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Monitoring                           | True                                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Initiated Shutdown Behavior | terminate                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Count                                | 1                                                       |
++----+--------------------------------------+---------------------------------------------------------+
+```
+
+### Multiple Instances Example
+
+```yaml
+resources:
+  region: us-east-1
+
+  ec2_instances:
+    - instance_type: t2.micro
+      ami_id: ami-01234567
+      key_name: jenkins_key
+      security_group: sg-04ac7dc75e1f54b3a
+      count: 1
+      tags:
+        - Key: Name
+          Value: slave
+      subnet_id: subnet-0123456789
+      iam_instance_profile: user
+      block_device_mappings:
+        - DeviceName: /dev/sdh
+          Ebs:
+            VolumeSize: 10
+      monitoring: true
+      instance_initiated_shutdown_behavior: terminate
+      create_remote: true
+
+    - instance_type: t2.micro
+      ami_id: ami-01234567
+      key_name: jenkins_key
+      security_group: sg-04ac7dc75e1f54b3a
+      count: 1
+      tags:
+        - Key: Name
+          Value: slave
+      subnet_id: subnet-0123456789
+      create_remote: true
+```
+### Final Review Table
+
+```
++----+--------------------------------------+---------------------------------------------------------+
+|    | Category                             | Value                                                   |
++====+======================================+=========================================================+
+| +  | EC2 Instance                         | Instance 1                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Type                        | t2.micro                                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | AMI ID                               | ami-050887ebff330de9f                                   |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Key Name                             | jenkins_key                                             |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Security Group                       | sg-04ac7dc75e1f54b3a                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Tags                                 | [{'Key': 'Name', 'Value': 'slave'}]                     |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Subnet ID                            | subnet-01836ae2845801323                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | IAM Role                             | devops-bot                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Block Device Mappings                | [{'DeviceName': '/dev/sdh', 'Ebs': {'VolumeSize': 10}}] |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Monitoring                           | True                                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Initiated Shutdown Behavior | terminate                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Count                                | 1                                                       |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | EC2 Instance                         | Instance 2                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Type                        | t2.micro                                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | AMI ID                               | ami-050887ebff330de9f                                   |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Key Name                             | jenkins_key                                             |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Security Group                       | sg-04ac7dc75e1f54b3a                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Tags                                 | [{'Key': 'Name', 'Value': 'slave'}]                     |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Subnet ID                            | subnet-01836ae2845801323                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Count                                | 1                                                       |
++----+--------------------------------------+---------------------------------------------------------+
+
+```
+### Execution
+
+```bash
+root@ubuntu-dob:~/test# dob aws screenplay ec2test1.yaml
+```
+
+
+
+## 2. Using Local Variables
+
+In this example, variables are defined in a local file `roost.dob` and referenced in the screenplay configuration.
+
+### Local Variables (in `roost.dob`)
+
+```yaml
+itype:
+  type: str
+  value: t2.medium
+
+ami_id-dev:
+  type: str
+  value: ami-0a0e5d9c7acc336f1
+
+sgroup:
+  type: list
+  value:
+    - sg-04ac7dc75e1f54b3a
+
+kname:
+  type: str
+  value: jenkins_key
+
+snet:
+  type: str
+  value: subnet-01836ae2845801323
+```
+
+### Screenplay Configuration
+
+```yaml
+version: "1.0"
+
+resources:
+  region: us-east-1
+
+  ec2_instances:
+    - instance_type: "${ver.itype}"
+      ami_id: "${ver.ami_id-dev}"
+      key_name: "${ver.kname}"
+      security_group: "${ver.sgroup}"
+      count: 1
+      tags:
+        - Key: Name
+          Value: slave
+      subnet_id: "${ver.snet}"
+      iam_instance_profile: devops-bot
+      block_device_mappings:
+        - DeviceName: /dev/sdh
+          Ebs:
+            VolumeSize: 10
+      monitoring: true
+      instance_initiated_shutdown_behavior: terminate
+      create_remote: true
+```
+
+### Execution
+
+```bash
+root@ubuntu-dob:~/test# dob aws screenplay ec2-ver-yaml.yaml
+```
+
+### Final Review Table
+
+```
++----+--------------------------------------+---------------------------------------------------------+
+|    | Category                             | Value                                                   |
++====+======================================+=========================================================+
+| +  | EC2 Instance                         | Instance 1                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Type                        | t2.medium                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | AMI ID                               | ami-0a0e5d9c7acc336f1                                   |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Key Name                             | jenkins_key                                             |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Security Group                       | sg-04ac7dc75e1f54b3a                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Tags                                 | [{'Key': 'Name', 'Value': 'slave'}]                     |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Subnet ID                            | subnet-01836ae2845801323                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | IAM Role                             | devops-bot                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Block Device Mappings                | [{'DeviceName': '/dev/sdh', 'Ebs': {'VolumeSize': 10}}] |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Monitoring                           | True                                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Initiated Shutdown Behavior | terminate                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Count                                | 1                                                       |
++----+--------------------------------------+---------------------------------------------------------+
+Do you want to proceed with executing these actions? [Y/n]: y
+Proceeding with the actions... (Execution ID: 1d3a2a04-6ff1-470e-a0ec-a9ec6925857c)
+
+Instances created with IDs: i-07fd26b4bccca2448
+Waiting for instances to be in running state...
+Instances are now running.
+Execution state saved to: /root/.etc/devops-bot/state_files/1d3a2a04-6ff1-470e-a0ec-a9ec6925857c.yml
+Execution complete. State saved to: /root/.etc/devops-bot/state_files/1d3a2a04-6ff1-470e-a0ec-a9ec6925857c.yml (Execution ID: 1d3a2a04-6ff1-470e-a0ec-a9ec6925857c)
+Execution completed. (Execution ID: 1d3a2a04-6ff1-470e-a0ec-a9ec6925857c)
+
+```
+
+## 3. Using Remote Variables
+
+
+Remote variables can be specified using the `--rv` flag to pull them from an external source.
+
+### Execution with Remote Variables
+
+```
+root@ubuntu-dob:~/test# dob aws screenplay ec2-ver-yaml.yaml --rv https://raw.githubusercontent.com/deeeye2/veriable/master/ver.yaml
+Validating and linting variables...
+All validations and linting checks passed successfully!
+
+```
+
+### Final Review Table
+
+```
++----+--------------------------------------+---------------------------------------------------------+
+|    | Category                             | Value                                                   |
++====+======================================+=========================================================+
+| +  | EC2 Instance                         | Instance 1                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Type                        | t2.medium                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | AMI ID                               | ami-0a0e5d9c7acc336f1                                   |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Key Name                             | jenkins_key                                             |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Security Group                       | sg-04ac7dc75e1f54b3a                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Tags                                 | [{'Key': 'Name', 'Value': 'slave'}]                     |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Subnet ID                            | subnet-01836ae2845801323                                |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | IAM Role                             | devops-bot                                              |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Block Device Mappings                | [{'DeviceName': '/dev/sdh', 'Ebs': {'VolumeSize': 10}}] |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Monitoring                           | True                                                    |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Instance Initiated Shutdown Behavior | terminate                                               |
++----+--------------------------------------+---------------------------------------------------------+
+| +  | Count                                | 1                                                       |
++----+--------------------------------------+---------------------------------------------------------+
+
+
+```bash
+root@ubuntu-dob:~/test# dob aws screenplay ec2-ver-yaml.yaml --rv https://raw.githubusercontent.com/deeeye2/veriable/master/ver.yaml
+```
+
+## 4. Modifying Variables at Runtime
+
+Variables can also be overridden at runtime using the `--set` flag.
+
+### Execution with Set Flag
+
+```bash
+root@ubuntu-dob:~/test# dob aws screenplay ec2-ver-yaml.yaml --set itype=t2.small
+```
+
+
 ## **FAQ**
 ### 1. **What is DevOps-Bot?**
 DevOps-Bot is an automation tool for managing cloud infrastructure and services across multiple providers using YAML-based configurations.
