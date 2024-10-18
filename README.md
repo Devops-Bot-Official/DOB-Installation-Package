@@ -441,39 +441,171 @@ After saving a host entry using `add_host_entry` and running tasks, the hosts fi
 
 
 ---
-## Overview
-The `tasks` function in DevOps-Bot allows users to execute a variety of actions on remote servers or cloud instances. Tasks can range from running shell commands to copying files, downloading resources, managing system services, and more. This functionality is highly flexible and enables users to automate their operations efficiently.
+## Task
+## Features
 
-The tasks are defined in a YAML configuration file and support both specifying a particular server or executing actions across multiple servers that belong to a specific category.
+- **Retry Mechanism with Backoff**: Automatically retry failed tasks with an exponential backoff strategy.
+- **Notification and Logging**: Notify users on task failures and log the task execution summary.
+- **Task Dependency Management**: Ensure that tasks are only executed if dependent tasks have successfully completed.
+- **Timeout Management**: Set a maximum time for task execution to avoid indefinite waits.
+- **Dynamic Variables**: Use placeholders in task commands and parameters, which are dynamically replaced at runtime.
+- **Parallel Execution**: Execute tasks concurrently on multiple servers.
+- **Output Capture**: Capture the output of each task and analyze it to determine success or failure.
+- **Rollback Mechanism**: Revert changes if a task fails and rollback is enabled.
+- **Custom User Prompts**: Prompt the user for confirmation before executing certain tasks.
+- **Improved Loop and Iteration Handling**: Iterate over lists or counters for repetitive tasks.
+- **File and Template Management**: Handle file creation, movement, copying, and deletion.
+- **Advanced Networking Tasks**: Automate network configurations and checks.
+- **Health Checks**: Ensure systems are operational by performing health checks on services.
+- **Task Grouping**: Group multiple tasks into logical units and execute them sequentially.
+- **Task Scheduling**: Schedule tasks to run at specific times.
+- **Custom Actions and Plugins**: Define custom actions or extend the tool with additional plugins.
+- **Environment Detection**: Automatically detect and adapt to the environment (e.g., CentOS, Debian).
+- **Resource Management and Quotas**: Enforce resource limits to avoid over-provisioning.
+- **Fail-Safe Mechanism**: Stop execution in the event of critical task failures.
+- **Task Import and Modularization**: Import tasks from other modules to reuse across different projects.
+- **Enhanced Summary Reporting**: Detailed reporting at the end of task execution.
 
-### Structure of Task Configuration
-The task configuration resides under the `tasks` section in the YAML file. Each task can have several fields, and they should be defined with the following parameters:
+## How It Works
 
-### Parameters
-- **name** (Required): The name of the task. This helps in identifying tasks in logs and tables.
-- **action** (Required): The type of action to perform. Available actions include:
-  - **RUN**: Execute a command on the remote server.
-  - **COPY**: Copy files from one location to another.
-  - **DOWNLOAD**: Download a file from a URL to a specified location.
-  - **CREATE**: Create a directory on the remote server.
-  - **MOVE**: Move files from one location to another.
-  - **DELETE**: Delete files or directories.
-  - **LINK**: Open a specified URL.
-  - **TRANSFER**: Transfer files (upload or download).
-  - **ATTACH**: Attach an AWS volume to an instance.
-  - **DETACH**: Detach an AWS volume from an instance.
-  - **INSTALL**: Install a package.
-  - **START_SERVICE**: Start a system service.
-  - **STOP_SERVICE**: Stop a system service.
-  - **CHECK_SERVICE**: Check the status of a system service.
-- **identifiers** (Optional): A specific server identifier. Use `ALL` to execute the task across all servers or provide the server name.
-- **command** (Optional): The shell command to execute. This is applicable when `action` is set to **RUN**.
-- **package** (Optional): The name of the package to install, applicable when `action` is **INSTALL**.
-- **service** (Optional): The name of the service to start, stop, or check, applicable when using **START_SERVICE**, **STOP_SERVICE**, or **CHECK_SERVICE**.
-- **category** (Optional): The category of servers (e.g., `dev`, `prod`) on which the task should be executed.
+The screenplay function reads a YAML configuration file, which defines tasks that need to be performed on remote servers. It processes each task based on the specified parameters and performs the necessary actions, such as installing packages, managing services, creating directories, and more. 
 
-### Example YAML Configuration
-Below is an example of a YAML configuration that uses the `tasks` functionality:
+Tasks are executed in the order they are defined unless parallel execution is enabled. The function also supports conditional task execution, retries, and task dependencies.
+
+### YAML Task Example
+
+Here is an example of how tasks are defined in the YAML file:
+
+```yaml
+tasks:
+  - name: Install Nginx
+    action: INSTALL
+    package: nginx
+    retries: 3
+    timeout: 300
+    notify_on_failure: true
+    loop:
+      count: 2
+    depends_on: PreviousTask
+    parallel_execution: true
+    rollback_on_failure: true
+    custom_prompt: "Do you want to proceed with Nginx installation?"
+    task_group: "Web Server Setup"
+    health_checks:
+      - check: service_status
+        service: nginx
+```
+
+### Task Parameters
+
+- **`name`**: (Required) Name of the task.
+- **`action`**: (Required) Type of action to be performed. Can be one of `RUN`, `CREATE`, `INSTALL`, `START_SERVICE`, `STOP_SERVICE`, etc.
+- **`command`**: (Optional) Command to be run on the remote server.
+- **`package`**: (Optional) Package to be installed for `INSTALL` action.
+- **`service`**: (Optional) Service to be started/stopped for `START_SERVICE` and `STOP_SERVICE` actions.
+- **`retries`**: (Optional) Number of retries in case of task failure. Defaults to 0.
+- **`timeout`**: (Optional) Maximum time (in seconds) for task execution.
+- **`notify_on_failure`**: (Optional) Notify the user on task failure. Defaults to `false`.
+- **`depends_on`**: (Optional) Task name that this task depends on. The task will be skipped if the dependency hasn't completed successfully.
+- **`loop`**: (Optional) Loop configuration. Supports `for_each` and `count` for iteration.
+- **`parallel_execution`**: (Optional) Run the task in parallel with other tasks. Defaults to `false`.
+- **`rollback_on_failure`**: (Optional) Rollback changes if the task fails. Defaults to `false`.
+- **`custom_prompt`**: (Optional) Custom user prompt to confirm the task execution.
+- **`health_checks`**: (Optional) List of health checks to perform before proceeding with the task.
+- **`task_group`**: (Optional) Group multiple tasks together for logical execution.
+- **`task_schedule`**: (Optional) Define a schedule for the task.
+- **`custom_action`**: (Optional) Define a custom action for the task.
+- **`environment_detection`**: (Optional) Detect and adapt to the environment (OS type, installed packages, etc.).
+
+### Key Functions Explained
+
+#### 1. Retry Mechanism with Backoff Strategy
+
+Tasks can fail due to network issues or temporary system errors. The `retries` parameter allows tasks to be retried a specified number of times with an exponential backoff delay between attempts.
+
+```yaml
+retries: 3
+```
+
+This will retry the task 3 times before giving up. The backoff delay doubles after each failure.
+
+#### 2. Notification and Logging
+
+You can set `notify_on_failure` to `true` to be notified when a task fails. The function will also log all task outputs and print a summary at the end.
+
+```yaml
+notify_on_failure: true
+```
+
+#### 3. Task Dependency Management
+
+If a task depends on the successful completion of another task, you can use the `depends_on` parameter to enforce this.
+
+```yaml
+depends_on: PreviousTask
+```
+
+#### 4. Timeout Management
+
+Tasks can have a timeout defined, ensuring that no task hangs indefinitely.
+
+```yaml
+timeout: 300
+```
+
+This will stop the task if it takes longer than 300 seconds to complete.
+
+#### 5. Parallel Execution
+
+You can speed up task execution by running tasks in parallel using the `parallel_execution` parameter.
+
+```yaml
+parallel_execution: true
+```
+
+#### 6. Rollback Mechanism
+
+In the event of a failure, you can specify a rollback mechanism to revert any changes made during the task.
+
+```yaml
+rollback_on_failure: true
+```
+
+#### 7. Custom User Prompts
+
+If you want user confirmation before executing certain tasks, use the `custom_prompt` parameter.
+
+```yaml
+custom_prompt: "Do you want to proceed with Nginx installation?"
+```
+
+#### 8. Enhanced Summary Reporting
+
+At the end of task execution, a detailed summary of all actions performed is printed, including success, failure, skipped tasks, and more.
+
+```yaml
+enhanced_summary: true
+```
+
+## Execution Summary Example
+
+After executing tasks, a summary like the following will be printed:
+
+```
+Execution Summary:
+  Packages Installed: 5
+  Packages Already Installed: 2
+  Directories Created: 3
+  Directories/Files Deleted: 1
+  Files Moved: 2
+  Files Copied: 4
+  Files Downloaded: 1
+  Services Started: 3
+  Services Stopped: 2
+  Service Status Checked: 5
+  Tasks Skipped: 1
+  Other Actions: 0
+```
 
 ```yaml
 version: "1.0"
@@ -513,11 +645,6 @@ tasks:
     identifiers: "opp-server"
     category: "dev"
 ```
-
-### Execution Overview
-- **Task Name**: This is displayed in logs, which makes it easy for users to track what each task is doing.
-- **Actions**: This field specifies what kind of operation is to be performed.
-- **Identifiers and Categories**: These fields help in determining the target servers on which actions should be taken. This allows users to execute tasks either across all servers in a category or on specific servers.
 
 ### Example Task Review Table
 When executing a task configuration, a table similar to the following will be displayed for review before proceeding:
