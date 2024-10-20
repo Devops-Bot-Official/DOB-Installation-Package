@@ -1116,7 +1116,155 @@ Variables can also be overridden at runtime using the `--set` flag.
 ```bash
 root@ubuntu-dob:~/test# dob aws screenplay ec2-ver-yaml.yaml --set itype=t2.small
 ```
+# DevOps-Bot: Handling Variables, Loops, Conditions, and Output Variables
 
+## Overview
+
+This guide explains how to use variables, loops, conditions, and output variables in the DevOps-Bot screenplay functionality. It will walk you through the process of creating dynamic configurations and capturing outputs for reuse in later stages of your automation.
+
+### Key Features:
+- **Variables Handling**: Dynamically reference and interpolate variables in your YAML scripts.
+- **Loops**: Execute repeated tasks based on lists, ranges, or conditions.
+- **Conditions**: Define conditional logic for task execution.
+- **Output Variables**: Capture and reuse outputs from previous tasks.
+
+---
+
+## 1. Variables Handling
+
+Variables can be defined globally in your configuration or passed from external sources. You can interpolate variables in various fields to make your configuration dynamic.
+
+### Example:
+```yaml
+variables:
+  region: us-west-2
+  instance_type: t2.micro
+
+resources:
+  ec2_instances:
+    - name: my-instance
+      region: ${ver.region}         # Interpolates from variables
+      instance_type: ${ver.instance_type}
+```
+
+You can use `--set` or `--ver` options to pass variables dynamically when running the screenplay:
+```
+dob aws screenplay my_config.yaml --set instance_type=t3.medium
+```
+
+### Loading Remote Variables:
+You can also load variables from a remote URL using the `--rv` flag:
+```
+dob aws screenplay my_config.yaml --rv https://example.com/variables.yaml
+```
+
+---
+
+## 2. Loops
+
+Loops allow you to run tasks multiple times with different values. Loops can be defined for lists, ranges, or even custom loop logic.
+
+### Supported Loop Types:
+
+1. **List Loop**:
+    Use `loop_list` to iterate over a list of values.
+    ```yaml
+    resources:
+      ec2_instances:
+        - name: my-instance
+          loop_list:
+            - { instance_type: t2.micro }
+            - { instance_type: t2.medium }
+    ```
+
+2. **Range Loop**:
+    You can iterate over a range of numbers using `loop_range`:
+    ```yaml
+    resources:
+      ec2_instances:
+        - name: instance-{{i}}
+          loop_range:
+            start: 1
+            end: 5
+    ```
+
+3. **For Each Loop**:
+    Iterate over a dictionary of values:
+    ```yaml
+    resources:
+      ec2_instances:
+        - name: loop-instance
+          for_each:
+            web: { instance_type: t2.micro, region: us-west-2 }
+            db: { instance_type: t2.large, region: us-east-1 }
+    ```
+
+---
+
+## 3. Conditional Execution
+
+Conditions allow tasks to be executed only if certain criteria are met.
+
+### Example:
+```yaml
+resources:
+  ec2_instances:
+    - name: conditional-instance
+      condition: variables["region"] == "us-west-2"
+      instance_type: t2.micro
+```
+
+You can define conditions directly in your resources. If the condition is not met, the task will be skipped.
+
+---
+
+## 4. Output Variables
+
+After executing a task, you might want to capture the output (like resource IDs) for reuse in later tasks. Output variables let you store and reference these values.
+
+### Capturing Outputs:
+Outputs can be captured and recorded into a separate state file:
+```yaml
+resources:
+  ec2_instances:
+    - name: my-instance
+      instance_type: t2.micro
+      capture_output: true  # This will capture and save the output of this resource creation
+```
+
+### Referencing Output Variables:
+Once an output variable is captured, you can use it in subsequent tasks:
+```yaml
+resources:
+  elastic_ips:
+    - name: my-eip
+      associate_with: ${ver.ec2_instances.my-instance}
+```
+
+### Using Output Variables:
+To retrieve and reuse output variables in other tasks, you can load them as needed:
+```
+dob aws screenplay my_config.yaml --rc https://example.com/config.yaml
+```
+
+---
+
+## 5. Encrypting and Decrypting Sensitive Variables
+
+Sensitive variables (like passwords) can be encrypted using the tool's built-in encryption capabilities. These variables can be decrypted during runtime.
+
+### Example:
+```yaml
+variables:
+  db_password:
+    value: ${encrypted_value_here}
+    sensitive: true
+```
+
+To decrypt the sensitive values during runtime, use the `--password` flag:
+```
+dob aws screenplay my_config.yaml --password <your_password>
+```
 
 ## **FAQ**
 ### 1. **What is DevOps-Bot?**
