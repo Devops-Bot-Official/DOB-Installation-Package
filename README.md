@@ -44,42 +44,68 @@ Before you begin, ensure you have met the following requirements:
 
 ---
 
+# **DevOps Bot Installation**
+
 ## **Installation**
 
-### 1. **Download the Precompiled Binary**
-You can download the precompiled binary from the GitHub repository releases:
+### **Steps to Install**
 
-```bash
-wget https://github.com/Deeeye/DOB-Installation-Package/raw/main/dob.zip -O dob.zip
-```
+1. **Create the Installation Script**:
+   Copy the following script and save it as `install_devops_bot.sh` on your system:
 
-### 2. **Extract the Archive**
-Unzip the downloaded `dob.zip` file:
+   ```bash
+   #!/bin/bash
 
-```bash
-unzip dob.zip
-```
+   # Exit immediately if any command fails
+   set -e
 
-If you prefer to use the tar file, download and extract the tar archive:
+   # Function to display a stage
+   function show_stage() {
+     echo -e "\n\033[1;32m>>> $1\033[0m"
+   }
 
-```bash
-wget https://github.com/Deeeye/DOB-Installation-Package/raw/main/dob.tar.gz -O dob.tar.gz
-tar -xzvf dob.tar.gz
-```
+   # Function to install a package
+   function install_package() {
+     if ! dpkg -l | grep -qw "$1"; then
+       show_stage "Installing $1..."
+       apt-get install -y "$1"
+     else
+       echo "$1 is already installed."
+     fi
+   }
 
-### 3. **Move the Executable to a Directory in Your $PATH**
-(Optional) You can move the `dob` executable to a directory in your system's `$PATH` so that it can be accessed from anywhere:
+   # Step 1: Check OS compatibility
+   show_stage "Checking operating system..."
+   OS=$(uname -s)
+   if [[ "$OS" != "Linux" ]]; then
+     echo "This script is designed for Linux systems only."
+     exit 1
+   fi
 
-```bash
-sudo mv dob /usr/local/bin/
-```
+   # Step 2: Update and install prerequisites
+   show_stage "Updating package list and installing prerequisites..."
+   apt-get update -y
+   install_package "wget"
+   install_package "python3-pip"
 
-### 4. **Run the Binary**
-After extracting the binary, navigate to the extracted folder and run the tool:
+   # Step 3: Download the .whl file
+   WHL_URL="https://raw.githubusercontent.com/Devops-Bot-Official/DOB-Installation-Package/main/devops_bot-0.1-py3-none-any.whl"
+   WHL_FILE="devops_bot-0.1-py3-none-any.whl"
 
-```bash
-./dob --help
-```
+   show_stage "Downloading the package..."
+   wget -q "$WHL_URL" -O "$WHL_FILE"
+
+   # Step 4: Install the package
+   show_stage "Installing the package..."
+   pip install "$WHL_FILE"
+
+   # Step 5: Clean up
+   show_stage "Cleaning up..."
+   rm -f "$WHL_FILE"
+
+   # Final message
+   show_stage "Installation complete!"
+
 
 This will show a list of available commands and options for the DevOps-Bot tool.
 
