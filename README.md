@@ -87,12 +87,17 @@ Before you begin, ensure you have met the following requirements:
      PACKAGE_MANAGER="apt-get"
      update_command="apt-get update -y"
    elif [ -f "/etc/redhat-release" ]; then
-     if command -v dnf &>/dev/null; then
+     if grep -qi "amazon linux" /etc/os-release; then
+       # Handle Amazon Linux explicitly
+       PACKAGE_MANAGER="yum"
+       update_command="yum update -y"
+     elif command -v dnf &>/dev/null; then
        PACKAGE_MANAGER="dnf"
+       update_command="dnf update -y"
      else
        PACKAGE_MANAGER="yum"
+       update_command="yum update -y"
      fi
-     update_command="$PACKAGE_MANAGER update -y"
    else
      echo "Unsupported operating system."
      exit 1
