@@ -66,27 +66,43 @@ Before you begin, ensure you have met the following requirements:
 
    # Function to install a package
    function install_package() {
-     if ! dpkg -l | grep -qw "$1"; then
+     if ! command -v "$1" &>/dev/null; then
        show_stage "Installing $1..."
-       apt-get install -y "$1"
+       if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+         apt-get install -y "$2"
+       elif [ "$PACKAGE_MANAGER" == "yum" ] || [ "$PACKAGE_MANAGER" == "dnf" ]; then
+         $PACKAGE_MANAGER install -y "$2"
+       else
+         echo "Unsupported package manager."
+         exit 1
+       fi
      else
        echo "$1 is already installed."
      fi
    }
 
-   # Step 1: Check OS compatibility
+   # Step 1: Detect the operating system and package manager
    show_stage "Checking operating system..."
-   OS=$(uname -s)
-   if [[ "$OS" != "Linux" ]]; then
-     echo "This script is designed for Linux systems only."
+   if [ -f "/etc/debian_version" ]; then
+     PACKAGE_MANAGER="apt-get"
+     update_command="apt-get update -y"
+   elif [ -f "/etc/redhat-release" ]; then
+     if command -v dnf &>/dev/null; then
+       PACKAGE_MANAGER="dnf"
+     else
+       PACKAGE_MANAGER="yum"
+     fi
+     update_command="$PACKAGE_MANAGER update -y"
+   else
+     echo "Unsupported operating system."
      exit 1
    fi
 
    # Step 2: Update and install prerequisites
    show_stage "Updating package list and installing prerequisites..."
-   apt-get update -y
-   install_package "wget"
-   install_package "python3-pip"
+   eval "$update_command"
+   install_package "wget" "wget"
+   install_package "pip3" "python3-pip"
 
    # Step 3: Download the .whl file
    WHL_URL="https://raw.githubusercontent.com/Devops-Bot-Official/DOB-Installation-Package/main/devops_bot-0.1-py3-none-any.whl"
@@ -97,7 +113,7 @@ Before you begin, ensure you have met the following requirements:
 
    # Step 4: Install the package
    show_stage "Installing the package..."
-   pip install "$WHL_FILE"
+   pip3 install "$WHL_FILE"
 
    # Step 5: Clean up
    show_stage "Cleaning up..."
@@ -106,8 +122,6 @@ Before you begin, ensure you have met the following requirements:
    # Final message
    show_stage "Installation complete!"
 
-
-This will show a list of available commands and options for the DevOps-Bot tool.
 
 ---
 
