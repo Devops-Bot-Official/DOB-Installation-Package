@@ -117,7 +117,7 @@ Before you begin, ensure you have met the following requirements:
    install_package "pip3" "python3-pip"
 
    # Step 3: Download the .whl file
-   WHL_URL="https://raw.githubusercontent.com/Devops-Bot-Official/DOB-Installation-Package/main/devops_bot-0.1-py3-none-any.whl"
+   WHL_URL="https://raw.githubusercontent.com/Devops-Bot-Official/DOB-Installation-Package/master/devops_bot-0.1-py3-none-any.whl"
    WHL_FILE="devops_bot-0.1-py3-none-any.whl"
 
    show_stage "Downloading the package..."
