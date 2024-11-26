@@ -86,17 +86,24 @@ Before you begin, ensure you have met the following requirements:
    if [ -f "/etc/debian_version" ]; then
      PACKAGE_MANAGER="apt-get"
      update_command="apt-get update -y"
-   elif [ -f "/etc/redhat-release" ]; then
-     if grep -qi "amazon linux" /etc/os-release; then
-       # Handle Amazon Linux explicitly
+   elif [ -f "/etc/os-release" ]; then
+     . /etc/os-release
+     if [[ "$ID" == "amzn" ]]; then
+       # Amazon Linux
        PACKAGE_MANAGER="yum"
        update_command="yum update -y"
-     elif command -v dnf &>/dev/null; then
-       PACKAGE_MANAGER="dnf"
-       update_command="dnf update -y"
+     elif [[ "$ID_LIKE" == *"rhel"* ]] || [[ "$ID" == "centos" ]] || [[ "$ID" == "fedora" ]]; then
+       # RHEL-based distributions
+       if command -v dnf &>/dev/null; then
+         PACKAGE_MANAGER="dnf"
+         update_command="dnf update -y"
+       else
+         PACKAGE_MANAGER="yum"
+         update_command="yum update -y"
+       fi
      else
-       PACKAGE_MANAGER="yum"
-       update_command="yum update -y"
+       echo "Unsupported operating system."
+       exit 1
      fi
    else
      echo "Unsupported operating system."
