@@ -255,6 +255,8 @@ sudo systemctl status devops-bot
 # If the service does not start or behaves unexpectedly, review the logs for more details:
 journalctl -u devops-bot.service -n 50 --no-pager
 ---
+```
+
 ### Loop and Conditions
 
 This document explains how to use loops and conditions within the `DevOps-Bot` configuration YAML file. Loops allow you to create multiple instances or resources dynamically, while conditions allow you to control whether certain resources are provisioned based on variables or other logic.
