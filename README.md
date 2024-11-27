@@ -220,6 +220,40 @@ systemctl start "$SERVICE_NAME"
 
 echo ">>> Service setup complete!"
 ```
+
+---
+
+## Steps to Configure and Run DevOps Bot
+
+```bash
+# 1. Create a System User and Verify
+sudo useradd -r -s /bin/false devops-bot
+# -r: Creates a system account (no home directory, no password).
+# -s /bin/false: Ensures the account cannot be used for login.
+
+# Check if the user has been created successfully:
+id devops-bot
+# Expected output should resemble:
+# uid=XXX(devops-bot) gid=XXX(devops-bot) groups=XXX(devops-bot)
+
+# 2. Set Permissions
+sudo chown -R devops-bot:devops-bot /etc/devops-bot
+sudo chmod -R 750 /etc/devops-bot
+
+# If the service requires access to /usr/local/bin/dob, update its permissions:
+sudo chown devops-bot:devops-bot /usr/local/bin/dob
+sudo chmod 750 /usr/local/bin/dob
+
+# 3. Restart the Service
+sudo systemctl daemon-reload
+sudo systemctl restart devops-bot
+
+# 4. Check the Service Status
+sudo systemctl status devops-bot
+
+# 5. Troubleshoot Logs
+# If the service does not start or behaves unexpectedly, review the logs for more details:
+journalctl -u devops-bot.service -n 50 --no-pager
 ---
 ### Loop and Conditions
 
