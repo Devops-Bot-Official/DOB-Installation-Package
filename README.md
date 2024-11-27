@@ -219,7 +219,7 @@ systemctl enable "$SERVICE_NAME"
 systemctl start "$SERVICE_NAME"
 
 echo ">>> Service setup complete!"
-
+```
 ---
 ### Loop and Conditions
 
