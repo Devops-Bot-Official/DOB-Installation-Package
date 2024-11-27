@@ -135,8 +135,36 @@ Before you begin, ensure you have met the following requirements:
    show_stage "Installation complete!"
 
 
----
 
+---
+## **Usage**
+Once installed, you can use the `dob` command to see the available options and commands:
+
+```bash
+dob --help
+```
+
+To view the version of DevOps-Bot:
+
+```bash
+dob --version
+```
+
+### **Common Commands**
+
+- **View Help**:
+
+  ```bash
+  dob --help
+  ```
+
+- **Execute a Sample Command**:
+
+  ```bash
+  dob sample-command
+  ```
+
+---
 # DevOps Bot Service Setup
 
 This document provides the steps to set up and configure the DevOps Bot service using `systemd`.
@@ -194,35 +222,6 @@ echo ">>> Service setup complete!"
 
 ---
 
----
-## **Usage**
-Once installed, you can use the `dob` command to see the available options and commands:
-
-```bash
-dob --help
-```
-
-To view the version of DevOps-Bot:
-
-```bash
-dob --version
-```
-
-### **Common Commands**
-
-- **View Help**:
-
-  ```bash
-  dob --help
-  ```
-
-- **Execute a Sample Command**:
-
-  ```bash
-  dob sample-command
-  ```
-
----
 
 ## **Configuration**
 Configuration details will be added soon. Stay tuned!
