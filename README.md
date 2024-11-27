@@ -136,6 +136,7 @@ Before you begin, ensure you have met the following requirements:
 
 
 ---
+
 # DevOps Bot Service Setup
 
 This document provides the steps to set up and configure the DevOps Bot service using `systemd`.
@@ -193,6 +194,7 @@ echo ">>> Service setup complete!"
 
 ---
 
+---
 ## **Usage**
 Once installed, you can use the `dob` command to see the available options and commands:
 
