@@ -136,6 +136,62 @@ Before you begin, ensure you have met the following requirements:
 
 
 ---
+# DevOps Bot Service Setup
+
+This document provides the steps to set up and configure the DevOps Bot service using `systemd`.
+
+## Prerequisites
+
+Ensure you have the following installed on your system:
+- Python 3.6 or higher
+- `dob` CLI installed and functional
+- Proper permissions to create and manage `systemd` services
+
+## Installation Steps
+
+### 1. Create the `systemd` Service File
+
+Run the following script to set up the `systemd` service:
+
+```bash
+#!/bin/bash
+
+set -e
+
+SERVICE_NAME="devops-bot"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
+
+echo ">>> Creating the systemd service file..."
+cat <<EOL > "$SERVICE_FILE"
+[Unit]
+Description=DevOps Bot Service
+After=network.target
+
+[Service]
+User=devops-bot
+Group=devops-bot
+Environment="FLASK_APP=devops_bot.ui.app"
+Environment="FLASK_ENV=production"
+WorkingDirectory=/etc/devops-bot
+ExecStart=/usr/local/bin/dob run-ui --port 4102
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+echo ">>> Reloading systemd, enabling and starting the service..."
+systemctl daemon-reload
+systemctl enable "$SERVICE_NAME"
+systemctl start "$SERVICE_NAME"
+
+echo ">>> Service setup complete!"
+
+---
 
 ## **Usage**
 Once installed, you can use the `dob` command to see the available options and commands:
