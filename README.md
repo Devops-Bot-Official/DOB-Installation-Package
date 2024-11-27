@@ -150,7 +150,7 @@ To view the version of DevOps-Bot:
 dob --version
 ```
 
-### **Common Commands**
+## **Common Commands**
 
 - **View Help**:
 
@@ -165,7 +165,7 @@ dob --version
   ```
 
 ---
-# DevOps Bot Service Setup
+### DevOps Bot Service Setup
 
 This document provides the steps to set up and configure the DevOps Bot service using `systemd`.
 
