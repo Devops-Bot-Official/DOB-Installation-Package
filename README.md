@@ -223,7 +223,7 @@ echo ">>> Service setup complete!"
 
 ---
 
-## Steps to Configure and Run DevOps Bot
+## Steps to Configure and Run DevOps-Bot UI
 
 ```bash
 # 1. Create a System User and Verify
