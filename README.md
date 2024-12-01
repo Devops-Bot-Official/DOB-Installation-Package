@@ -197,8 +197,8 @@ Description=DevOps Bot Service
 After=network.target
 
 [Service]
-User=devops-bot
-Group=devops-bot
+User=root
+Group=root
 Environment="FLASK_APP=devops_bot.ui.app"
 Environment="FLASK_ENV=production"
 WorkingDirectory=/etc/devops-bot
@@ -236,7 +236,7 @@ id devops-bot
 # Expected output should resemble:
 # uid=XXX(devops-bot) gid=XXX(devops-bot) groups=XXX(devops-bot)
 
-# 2. Set Permissions
+# 2. Set Permissions if using debops-bot as user
 sudo chown -R devops-bot:devops-bot /etc/devops-bot
 sudo chmod -R 750 /etc/devops-bot
 
