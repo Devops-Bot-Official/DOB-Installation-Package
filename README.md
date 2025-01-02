@@ -134,41 +134,87 @@ Before you begin, ensure you have met the following requirements:
    # Final message
    show_stage "Installation complete!"
 ---
-## **uninstall**
-#!/bin/bash
+# Uninstalling DevOps Bot
 
-# Exit immediately if any command fails
-set -e
+This guide explains how to uninstall the `devops-bot` package and clean up residual files.
 
-# Function to display a stage
-function show_stage() {
-  echo -e "\n\033[1;31m>>> $1\033[0m"
-}
+---
 
-# Step 1: Check if pip3 is available
-if ! command -v pip3 &>/dev/null; then
-  echo "pip3 is not installed. Cannot proceed with uninstallation."
-  exit 1
-fi
+## Steps to Uninstall DevOps Bot
 
-# Step 2: Uninstall the devops-bot package
-PACKAGE_NAME="devops-bot"
-show_stage "Uninstalling $PACKAGE_NAME..."
-pip3 uninstall -y "$PACKAGE_NAME"
+### 1. Uninstall the `devops-bot` Package
 
-# Step 3: Clean up residual files
-BASE_DIR="/etc/devops-bot"
-show_stage "Removing residual files from $BASE_DIR..."
-if [ -d "$BASE_DIR" ]; then
-  rm -rf "$BASE_DIR"
-  echo "Removed $BASE_DIR."
-else
-  echo "No residual files found at $BASE_DIR."
-fi
+Run the following command to uninstall the `devops-bot` package using `pip3`:
 
-# Final message
-show_stage "Uninstallation complete!"
+```bash
+pip3 uninstall -y devops-bot
+```
 
+This command removes the package from your Python environment.
+
+---
+
+### 2. Remove Residual Files
+
+The `devops-bot` package creates additional files and directories during installation and execution. You should clean them up to fully remove the application.
+
+#### Check the Default Directory
+
+The default directory for the `devops-bot` files is:
+
+```plaintext
+/etc/devops-bot
+```
+
+#### Delete the Directory
+
+Run the following command to remove the directory:
+
+```bash
+sudo rm -rf /etc/devops-bot
+```
+
+This command permanently deletes all files and configurations related to `devops-bot`.
+
+---
+
+### 3. Verify the Cleanup
+
+To ensure all components are removed:
+
+1. Check for any remaining files:
+   ```bash
+   ls /etc | grep devops-bot
+   ```
+   If nothing is listed, all files have been successfully removed.
+
+2. Verify `pip3` no longer lists the package:
+   ```bash
+   pip3 list | grep devops-bot
+   ```
+   If nothing is listed, the package has been completely uninstalled.
+
+---
+
+## Additional Notes
+
+- If the `devops-bot` service was running as a systemd service, ensure it is stopped and removed:
+  ```bash
+  sudo systemctl stop devops-bot.service
+  sudo systemctl disable devops-bot.service
+  sudo rm /etc/systemd/system/devops-bot.service
+  sudo systemctl daemon-reload
+  ```
+
+- If you encounter issues during the uninstallation process, ensure you have the necessary permissions (use `sudo` if required).
+
+---
+
+## Questions or Feedback?
+
+If you have any questions or need further assistance, feel free to contact [DevOps Bot Support](mailto:support@devops-bot.com).
+
+---
 ---
 ## **Usage**
 Once installed, you can use the `dob` command to see the available options and commands:
