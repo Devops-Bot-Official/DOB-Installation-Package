@@ -133,8 +133,41 @@ Before you begin, ensure you have met the following requirements:
 
    # Final message
    show_stage "Installation complete!"
+---
+## **uninstall**
+#!/bin/bash
 
+# Exit immediately if any command fails
+set -e
 
+# Function to display a stage
+function show_stage() {
+  echo -e "\n\033[1;31m>>> $1\033[0m"
+}
+
+# Step 1: Check if pip3 is available
+if ! command -v pip3 &>/dev/null; then
+  echo "pip3 is not installed. Cannot proceed with uninstallation."
+  exit 1
+fi
+
+# Step 2: Uninstall the devops-bot package
+PACKAGE_NAME="devops-bot"
+show_stage "Uninstalling $PACKAGE_NAME..."
+pip3 uninstall -y "$PACKAGE_NAME"
+
+# Step 3: Clean up residual files
+BASE_DIR="/etc/devops-bot"
+show_stage "Removing residual files from $BASE_DIR..."
+if [ -d "$BASE_DIR" ]; then
+  rm -rf "$BASE_DIR"
+  echo "Removed $BASE_DIR."
+else
+  echo "No residual files found at $BASE_DIR."
+fi
+
+# Final message
+show_stage "Uninstallation complete!"
 
 ---
 ## **Usage**
