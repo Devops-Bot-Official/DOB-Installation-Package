@@ -202,7 +202,7 @@ Group=root
 Environment="FLASK_APP=devops_bot.ui.app"
 Environment="FLASK_ENV=production"
 WorkingDirectory=/etc/devops-bot
-ExecStart=/usr/local/bin/dob run-ui --port 4102
+ExecStart=/usr/local/bin/dob run-all --ui-port=4102 --webhook-port=4103
 Restart=always
 RestartSec=5
 
