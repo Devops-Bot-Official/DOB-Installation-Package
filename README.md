@@ -272,18 +272,18 @@ SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 echo ">>> Creating the systemd service file..."
 cat <<EOL > "$SERVICE_FILE"
 [Unit]
-Description=DevOps Bot Combined Service
+Description=DevOps Bot Service
 After=network.target
 
 [Service]
 User=root
 Group=root
+Environment="FLASK_APP=devops_bot.ui.app"
 Environment="FLASK_ENV=production"
 WorkingDirectory=/etc/devops-bot
-ExecStart=/usr/local/bin/dob run-all --ui-port=4102 --webhook-port=4103
-Restart=on-failure
-RestartSec=10
-TimeoutStartSec=30
+ExecStart=/usr/local/bin/dob run-ui --port 4102
+Restart=always
+RestartSec=5
 
 StandardOutput=journal
 StandardError=journal
